@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Custom Login Page</title>
+</head>
+<body
+        style="font-family: monospace"
+>
+
+<div
+        style="display: flex; flex-direction: column"
+>
+    <h2>Login Page</h2>
+    <form
+            th:action="@{/login}"
+            method="post"
+    >
+        <table style="">
+            <tr>
+                <td
+                        style="padding: 6px"
+                >
+                    <label for="username">Username</label>
+                </td>
+                <td
+                        style="padding: 6px"
+                >
+                    <input type="text" id="username" name="username" autofocus="autofocus"/>
+                </td>
+            </tr>
+            <tr>
+                <td
+                        style="padding: 6px"
+                >
+                    <label for="password">Password</label>
+                </td>
+                <td
+                        style="padding: 6px"
+                >
+                    <input type="password" id="password" name="password"/>
+                </td>
+            </tr>
+            <tr>
+                <td
+                        style="padding: 6px">
+                </td>
+                <td
+                        style="padding: 6px"
+                >
+                    <input type="submit" value="Log in"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+</body>
+</html>

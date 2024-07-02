@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  back:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '512M'
+        reservations:
+          cpus: '0.05'
+          memory: '32M'
+    image: chsergeig/tg-autoreply:latest
+    environment:
+      API_HASH: '00aaff99'
+      API_ID: '000000'
+      DB_KEY: 'db-pa$$w0rD'
+      DB_LOCATION: /session.sqlite
+      DEVICE_MODEL: 'my_telegram'
+      SYSTEM_LANG_CODE: 'ru'
+      USER_PHONE: '123456 w/o +'
+      JAVA_TOOL_OPTIONS: ''
+      REPLY_DEFAULT_ENABLED: false
+      REPLY_DEFAULT_MESSAGE: 'Im not available now. Read your message ASAP'
+      USER_LOGIN: 'very-good-login'
+      USER_PASSWORD: 'very-string-paSSwoRd'
+    ports:
+#      - "5005:5005"
+      - "8080:8080"
+    volumes:
+      - ./session.sqlite:/session.sqlite
+

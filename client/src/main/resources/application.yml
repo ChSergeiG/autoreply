@@ -1,0 +1,25 @@
+spring:
+#  autoconfigure:
+#    exclude:
+#      - dev.voroby.springframework.telegram.TelegramClientAutoConfiguration
+  telegram:
+    client:
+      api-id: ${API_ID}
+      api-hash: ${API_HASH}
+      phone: ${USER_PHONE}
+      system-language-code: ${SYSTEM_LANG_CODE:ru}
+      device-model: ${DEVICE_MODEL:my_telegram}
+      use-message-database: true
+      use-file-database: true
+      use-chat-info-database: true
+      use-secret-chats: true
+      log-verbosity-level: 1
+      database-directory: ${DB_LOCATION}
+      database-encryption-key: ${DB_KEY}
+  user:
+    default:
+      enabled: ${REPLY_DEFAULT_ENABLED:false}
+      message: ${REPLY_DEFAULT_MESSAGE:my default message}
+    security:
+      password: ${USER_PASSWORD:Q}
+      username: ${USER_LOGIN:Q}

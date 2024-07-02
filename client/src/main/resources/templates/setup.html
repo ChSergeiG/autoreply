@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TG client setup</title>
+</head>
+<body
+        style="font-family: monospace"
+>
+
+<div
+        style="display: flex; flex-direction: column; align-items: flex-start"
+>
+    <h3>Setup client</h3>
+
+    <hr>
+    <div
+            style="display:flex; flex-direction: row"
+    >
+        <div>Current state:</div>
+        <div th:text="${status}"></div>
+    </div>
+    <div
+            style="display:flex; flex-direction: row"
+    >
+        <form
+                action="#"
+                th:action="@{/setup/enable}"
+                method="get"
+                style="padding: 6px"
+        >
+            <input type="submit" th:value="Enable"/>
+        </form>
+        <form
+                action="#"
+                th:action="@{/setup/disable}"
+                method="get"
+                style="padding: 6px"
+        >
+            <input type="submit" th:value="Disable"/>
+        </form>
+    </div>
+    <form
+            action="#"
+            th:action="@{/setup/message}"
+            method="post"
+    >
+        <label for="message-input">Autoreply message: </label>
+        <textarea
+                id="message-input"
+                th:cols="120"
+                th:rows="10"
+                name="message"
+                th:text="${message}"
+        ></textarea>
+        <input type="submit"/>
+    </form>
+
+    <div th:replace="fragments/links.html :: links"></div>
+
+</div>
+</body>
+</html>
