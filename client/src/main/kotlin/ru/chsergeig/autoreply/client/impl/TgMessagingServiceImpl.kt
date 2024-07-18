@@ -54,10 +54,10 @@ class TgMessagingServiceImpl(
                 }
                 if (userId != null && userId == message.chatId) {
                     statistics.privateMessagesCount++
+                    doAutoreply(message)
                 } else {
                     statistics.chatMessagesCount++
                 }
-                doAutoreply(message)
                 processed.add(it)
             }
         }
