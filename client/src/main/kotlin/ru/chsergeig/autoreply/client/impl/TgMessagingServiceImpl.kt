@@ -1,6 +1,5 @@
 package ru.chsergeig.autoreply.client.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import dev.voroby.springframework.telegram.client.TdApi
 import dev.voroby.springframework.telegram.client.TdApi.FormattedText
 import dev.voroby.springframework.telegram.client.TdApi.InputMessageReplyToMessage
@@ -18,11 +17,11 @@ import ru.chsergeig.autoreply.client.enum.AutoreplyStatus
 import ru.chsergeig.autoreply.client.service.TgMessagingService
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class TgMessagingServiceImpl(
     @Lazy private val clientComponent: TgClientComponent,
-    private val objectMapper: ObjectMapper
 ) : TgMessagingService {
 
     private val log: Logger = LoggerFactory.getLogger(TgMessagingServiceImpl::class.java)
@@ -33,6 +32,7 @@ class TgMessagingServiceImpl(
 
     override var actualMessage: String? = null
     override var status: AutoreplyStatus? = null
+    override var responseChatList: MutableMap<Long, LocalDateTime> = ConcurrentHashMap()
 
     override fun saveNewMessage(
         message: Message
@@ -70,10 +70,13 @@ class TgMessagingServiceImpl(
     override fun getStatistics(): CurrentSessionStatistics = statistics
 
     fun doAutoreply(message: Message) {
-
         if (status == AutoreplyStatus.ENABLED) {
             log.info("Processed message: {}", message.toString())
-
+            if (responseChatList.containsKey(message.chatId)) {
+                log.info(">>> Flood protection")
+                return
+            }
+            responseChatList[message.chatId] = LocalDateTime.now()
             clientComponent.getTelegramClient().sendAsync(
                 TdApi.SendMessage(
                     message.chatId,
