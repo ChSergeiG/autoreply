@@ -2,6 +2,9 @@ package ru.chsergeig.autoreply.client.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.voroby.springframework.telegram.client.TdApi
+import dev.voroby.springframework.telegram.client.TdApi.FormattedText
+import dev.voroby.springframework.telegram.client.TdApi.InputMessageReplyToMessage
+import dev.voroby.springframework.telegram.client.TdApi.InputMessageText
 import dev.voroby.springframework.telegram.client.TdApi.Message
 import dev.voroby.springframework.telegram.client.TdApi.MessageSenderChat
 import dev.voroby.springframework.telegram.client.TdApi.MessageSenderUser
@@ -75,11 +78,14 @@ class TgMessagingServiceImpl(
                 TdApi.SendMessage(
                     message.chatId,
                     0,
+                    InputMessageReplyToMessage(
+                        message.id,
+                        null
+                    ),
                     null,
                     null,
-                    null,
-                    TdApi.InputMessageText(
-                        TdApi.FormattedText(
+                    InputMessageText(
+                        FormattedText(
                             actualMessage,
                             emptyArray()
                         ),
