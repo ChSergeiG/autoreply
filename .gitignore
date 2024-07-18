@@ -1,6 +1,7 @@
 .gradle
 .idea
 .DS_Store
+**/.DS_Store
 **/build/
 session.sqlite
 libs
