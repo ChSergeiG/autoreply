@@ -6,6 +6,7 @@ on:
     paths:
       - README.md
       - .github/workflows/docker-description.yml
+      - gradle.properties
 
 jobs:
   dockerHubDescription:
