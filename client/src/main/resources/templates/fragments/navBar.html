@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<nav
+        class="navbar navbar-dark bg-primary"
+        th:fragment="bar"
+>
+    <a class="navbar-brand" th:href="@{/}">TGA</a>
+    <div>
+        <ul class="navbar-nav mr-auto flex-row">
+            <li class="nav-item p-1">
+                <a class="nav-link" th:href="@{/}">
+                    <span class="sr-only">Home</span>
+                </a>
+            </li>
+            <li class="nav-item p-1">
+                <a class="nav-link" th:href="@{/setup}">
+                    <span class="sr-only">Setup</span>
+                </a>
+            </li>
+            <li class="nav-item p-1">
+                <a class="nav-link" th:href="@{/tg/status}">
+                    <span class="sr-only">Status</span>
+                </a>
+            </li>
+            <li class="nav-item p-1">
+                <a class="nav-link" th:href="@{/logout}">
+                    <span class="sr-only">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+</body>
+</html>

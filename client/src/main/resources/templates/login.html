@@ -1,57 +1,42 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Custom Login Page</title>
+<head th:include="fragments/head.html :: header">
 </head>
-<body
-        style="font-family: monospace"
->
+<body>
 
-<div
-        style="display: flex; flex-direction: column"
->
-    <h2>Login Page</h2>
-    <form
-            th:action="@{/login}"
-            method="post"
-    >
-        <table style="">
-            <tr>
-                <td
-                        style="padding: 6px"
-                >
-                    <label for="username">Username</label>
-                </td>
-                <td
-                        style="padding: 6px"
-                >
-                    <input type="text" id="username" name="username" autofocus="autofocus"/>
-                </td>
-            </tr>
-            <tr>
-                <td
-                        style="padding: 6px"
-                >
-                    <label for="password">Password</label>
-                </td>
-                <td
-                        style="padding: 6px"
-                >
-                    <input type="password" id="password" name="password"/>
-                </td>
-            </tr>
-            <tr>
-                <td
-                        style="padding: 6px">
-                </td>
-                <td
-                        style="padding: 6px"
-                >
-                    <input type="submit" value="Log in"/>
-                </td>
-            </tr>
-        </table>
-    </form>
+<div class="container">
+    <div class="col-md-6">
+        <div class="col-md-12">
+            <h3 class="text-center pt-5">Login Page</h3>
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label class="form-label" for="formUsername"> Username</label>
+                    <input
+                            type="text"
+                            id="formUsername"
+                            name="username"
+                            class="form-control"
+                    />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="formPassword">Password:</label>
+                    <input
+                            type="password"
+                            id="formPassword"
+                            class="form-control"
+                            name="password"
+                    />
+                </div>
+                <div class="form-group">
+                    <input
+                            type="submit"
+                            class="btn btn-primary btn-block mb-4"
+                            value="Log in"
+                    />
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 </body>
 </html>

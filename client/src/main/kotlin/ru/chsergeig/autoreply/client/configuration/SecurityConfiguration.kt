@@ -24,6 +24,8 @@ class SecurityConfiguration @Autowired constructor(
         http
             .authorizeHttpRequests {
                 it
+                    .requestMatchers("/styles/**")
+                    .permitAll()
                     .anyRequest()
                     .authenticated()
             }

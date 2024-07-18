@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>TG client</title>
+<head th:include="fragments/head.html :: header">
 </head>
-<body
-        style="font-family: monospace"
->
+<body>
 
-<div
-        style="display: flex; flex-direction: column"
->
-    <h3>Standalone TG client setup</h3>
+<div th:replace="fragments/navBar.html :: bar"></div>
 
-    <div th:replace="fragments/links.html :: links"></div>
-</div>
+<h3 class="text-center pt-5">Standalone TG client setup</h3>
 
 </body>
 </html>

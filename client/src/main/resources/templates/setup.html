@@ -1,62 +1,63 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>TG client setup</title>
+<head th:include="fragments/head.html :: header">
 </head>
-<body
-        style="font-family: monospace"
->
+<body>
 
-<div
-        style="display: flex; flex-direction: column; align-items: flex-start"
->
-    <h3>Setup client</h3>
+<div th:replace="fragments/navBar.html :: bar"></div>
 
-    <hr>
-    <div
-            style="display:flex; flex-direction: row"
-    >
-        <div>Current state:</div>
-        <div th:text="${status}"></div>
-    </div>
-    <div
-            style="display:flex; flex-direction: row"
-    >
-        <form
-                action="#"
-                th:action="@{/setup/enable}"
-                method="get"
-                style="padding: 6px"
-        >
-            <input type="submit" th:value="Enable"/>
-        </form>
+<h3 class="text-center pt-5">Setup client</h3>
+
+<div class="container">
+    <div class="input-group mb-2">
         <form
                 action="#"
                 th:action="@{/setup/disable}"
                 method="get"
-                style="padding: 6px"
         >
-            <input type="submit" th:value="Disable"/>
+            <input
+                    type="submit"
+                    class="btn btn-outline-secondary"
+                    th:classappend="${status == 'ENABLED' ? 'enabled' : 'disabled'}"
+                    th:value="Disable"
+            />
+        </form>
+        <form
+                action="#"
+                th:action="@{/setup/enable}"
+                method="get"
+        >
+            <input
+                    type="submit"
+                    class="btn btn-outline-secondary"
+                    th:classappend="${status == 'DISABLED' ? 'enabled' : 'disabled'}"
+                    th:value="Enable"
+            />
         </form>
     </div>
+
     <form
             action="#"
             th:action="@{/setup/message}"
             method="post"
     >
-        <label for="message-input">Autoreply message: </label>
-        <textarea
-                id="message-input"
-                th:cols="120"
-                th:rows="10"
-                name="message"
-                th:text="${message}"
-        ></textarea>
-        <input type="submit"/>
+        <div class="row">Autoreply message:</div>
+        <div class="row">
+            <div class="input-group mb-2">
+                <input
+                        type="text"
+                        class="form-control"
+                        name="message"
+                        th:value="${message}"
+                />
+                <input
+                        type="submit"
+                        class="btn btn-outline-secondary"
+                        th:value="Send"
+                />
+            </div>
+        </div>
     </form>
-
-    <div th:replace="fragments/links.html :: links"></div>
-
 </div>
 </body>
 </html>

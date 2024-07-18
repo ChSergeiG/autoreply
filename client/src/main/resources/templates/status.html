@@ -1,110 +1,143 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>TG client status</title>
+<head th:include="fragments/head.html :: header">
 </head>
-<body
-        style="font-family: monospace"
+<body>
+
+<div th:replace="fragments/navBar.html :: bar"></div>
+
+<h3 class="text-center pt-5">Replyer status</h3>
+
+<div class="container">
+    <div class="row">
+        <div class="col">Status:</div>
+        <div class="col" th:text="${appStatus}"></div>
+    </div>
+    <div class="row">
+        <div class="col">Message:</div>
+        <div class="col" th:text="${appMessage}"></div>
+    </div>
+</div>
+
+<h3 class="text-center pt-5">Client status</h3>
+
+<div class="container">
+    <div class="row">
+        <div class="col">Is client closed:</div>
+        <div class="col" th:text="${clientStatus.isClosed}"></div>
+    </div>
+    <div class="row">
+        <div class="col">Is client awaiting for code:</div>
+        <div class="col" th:text="${clientStatus.isWaitCode}"></div>
+    </div>
+    <div class="row">
+        <div class="col">Is client awaiting for password:</div>
+        <div class="col" th:text="${clientStatus.isWaitPassword}"></div>
+    </div>
+    <div class="row">
+        <div class="col">Is client awaiting for e-mail:</div>
+        <div class="col" th:text="${clientStatus.isWaitEmail}"></div>
+    </div>
+    <div class="row">
+        <div class="col">Is client authorization completed:</div>
+        <div class="col" th:text="${clientStatus.haveAuthorization}"></div>
+    </div>
+</div>
+
+<div th:if="${clientStatus.isClosed}">Client is closed</div>
+
+<h3
+        class="text-center pt-5"
+        th:if="${clientStatus.isWaitCode || clientStatus.isWaitPassword || clientStatus.isWaitEmail}"
 >
+    Actions:
+</h3>
 
-<div
-        style="display: flex; flex-direction: column"
->
-
-    <h3>Client status</h3>
-
-    <table>
-        <tr>
-            <td>isClosed</td>
-            <td th:text="${status.isClosed}"/>
-        </tr>
-        <tr>
-            <td>isWaitCode</td>
-            <td th:text="${status.isWaitCode}"/>
-        </tr>
-        <tr>
-            <td>isWaitPassword</td>
-            <td th:text="${status.isWaitPassword}"/>
-        </tr>
-        <tr>
-            <td>isWaitEmail</td>
-            <td th:text="${status.isWaitEmail}"/>
-        </tr>
-        <tr>
-            <td>haveAuthorization</td>
-            <td th:text="${status.haveAuthorization}"/>
-        </tr>
-
-    </table>
-
-    <hr>
-
-    <h3>Actions:</h3>
-
-    <div th:if="${status.isClosed}">Client is closed</div>
-    <div th:if="${!status.isClosed}">
-        <div th:if="${status.isWaitCode}">
-            <p>Client is waiting for authentication code</p>
-            <form
-                    action="#"
-                    th:action="@{/tg/auth-code}"
-                    method="post"
-            >
-                <div style="flex-direction: column; display: flex">
-                    <input type="text" name="data"/>
-                    <button type="submit">Provide code</button>
-                </div>
-            </form>
+<div th:if="${!clientStatus.isClosed}">
+    <div th:if="${clientStatus.isWaitCode}" class="input-group mb-3">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="authCodeInput">Authentication code:</label>
         </div>
-
-        <div th:if="${status.isWaitPassword}">
-            <p>Client is waiting for authentication password</p>
-            <form
-                    action="#"
-                    th:action="@{/tg/auth-password}"
-                    method="post"
-            >
-                <div style="flex-direction: column; display: flex">
-                    <input type="password" name="data"/>
-                    <button type="submit">Provide password</button>
-                </div>
-            </form>
-        </div>
-
-
-        <div th:if="${status.isWaitEmail}">
-            <p>Client is waiting for email</p>
-            <form
-                    action="#"
-                    th:action="@{/tg/auth-email}"
-                    method="post"
-            >
-                <div style="flex-direction: column; display: flex">
-                    <input type="email" name="data"/>
-                    <button type="submit">Provide email</button>
-                </div>
-            </form>
-        </div>
+        <form
+                action="#"
+                th:action="@{/tg/auth-code}"
+                method="post"
+        >
+            <input
+                    type="text"
+                    class="form-control"
+                    name="data"
+                    id="authCodeInput"
+            />
+            <input
+                    type="submit"
+                    class="btn btn-outline-secondary"
+                    th:value="Send"
+            />
+        </form>
     </div>
 
-    <div>
-        <h3>Curent session statistics:</h3>
-
-        <table>
-            <tr>
-                <td>Chat messages:</td>
-                <td th:text="${status.statistics.chatMessagesCount}"></td>
-            </tr>
-            <tr>
-                <td>Private messages:</td>
-                <td th:text="${status.statistics.privateMessagesCount}"></td>
-            </tr>
-        </table>
-
+    <div th:if="${clientStatus.isWaitPassword}" class="input-group mb-3">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="passInput">Authentication password:</label>
+        </div>
+        <form
+                action="#"
+                th:action="@{/tg/auth-password}"
+                method="post"
+        >
+            <input
+                    type="text"
+                    class="form-control"
+                    name="data"
+                    id="passInput"
+            />
+            <input
+                    type="submit"
+                    class="btn btn-outline-secondary"
+                    th:value="Send"
+            />
+        </form>
     </div>
 
-    <div th:replace="fragments/links.html :: links"></div>
+    <div th:if="${clientStatus.isWaitEmail}">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="emailInput">User e-mail:</label>
+        </div>
+        <form
+                action="#"
+                th:action="@{/tg/auth-email}"
+                method="post"
+        >
+            <input
+                    type="text"
+                    class="form-control"
+                    name="data"
+                    id="emailInput"
+            />
+            <input
+                    type="submit"
+                    class="btn btn-outline-secondary"
+                    th:value="Send"
+            />
+        </form>
+    </div>
+</div>
 
+<div>
+    <h3 class="text-center pt-5">Current session statistics:</h3>
+
+    <div class="container">
+        <div class="row">
+            <div class="col">Chat messages:</div>
+            <div class="col" th:text="${clientStatus.statistics.chatMessagesCount}"></div>
+        </div>
+        <div class="row">
+            <div class="col">Private messages:</div>
+            <div class="col" th:text="${clientStatus.statistics.privateMessagesCount}"></div>
+        </div>
+    </div>
+</div>
 </div>
 </body>
 </html>

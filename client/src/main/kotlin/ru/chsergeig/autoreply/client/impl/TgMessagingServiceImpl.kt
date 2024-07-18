@@ -1,5 +1,6 @@
 package ru.chsergeig.autoreply.client.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import dev.voroby.springframework.telegram.client.TdApi
 import dev.voroby.springframework.telegram.client.TdApi.Message
 import dev.voroby.springframework.telegram.client.TdApi.MessageSenderChat
@@ -17,7 +18,8 @@ import java.time.ZoneOffset
 
 @Service
 class TgMessagingServiceImpl(
-    @Lazy private val clientComponent: TgClientComponent
+    @Lazy private val clientComponent: TgClientComponent,
+    private val objectMapper: ObjectMapper
 ) : TgMessagingService {
 
     private val log: Logger = LoggerFactory.getLogger(TgMessagingServiceImpl::class.java)
@@ -65,9 +67,10 @@ class TgMessagingServiceImpl(
     override fun getStatistics(): CurrentSessionStatistics = statistics
 
     fun doAutoreply(message: Message) {
-        log.info("Processed message: {}", message.content.toString())
 
         if (status == AutoreplyStatus.ENABLED) {
+            log.info("Processed message: {}", message.toString())
+
             clientComponent.getTelegramClient().sendAsync(
                 TdApi.SendMessage(
                     message.chatId,

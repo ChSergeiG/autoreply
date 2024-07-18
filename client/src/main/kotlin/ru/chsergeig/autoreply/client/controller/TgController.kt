@@ -20,7 +20,7 @@ class TgController(
         model: Model
     ): String {
         model.addAttribute(
-            "status", TgStatus(
+            "clientStatus", TgStatus(
                 client.getClientAuthorizationState().isStateClosed,
                 client.getClientAuthorizationState().isWaitAuthenticationCode,
                 client.getClientAuthorizationState().isWaitAuthenticationPassword,
@@ -28,6 +28,14 @@ class TgController(
                 client.getClientAuthorizationState().haveAuthorization(),
                 messagingService.getStatistics(),
             )
+        )
+        model.addAttribute(
+            "appStatus",
+            messagingService.status
+        )
+        model.addAttribute(
+            "appMessage",
+            messagingService.actualMessage
         )
         return "status"
     }
