@@ -8,6 +8,9 @@ import ru.chsergeig.autoreply.client.properties.UserProperties
 import ru.chsergeig.autoreply.client.repository.SettingRepository
 import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.appMessage
 import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.appState
+import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.commonMessagesRead
+import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.privateMessagesRead
+import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.privateMessagesResponses
 import ru.chsergeig.autoreply.client.service.AppStateService
 
 @Service
@@ -46,7 +49,8 @@ class AppStateServiceImpl(
         return when (key) {
             appMessage -> userProperties.default.message
             appState -> if (userProperties.default.enabled) AutoreplyStatus.ENABLED.name else AutoreplyStatus.DISABLED.name
-            else -> null
+            commonMessagesRead, privateMessagesRead, privateMessagesResponses -> "0"
+            else -> throw RuntimeException("Unknown key: $key")
         }
     }
 }
