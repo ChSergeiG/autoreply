@@ -1,6 +1,7 @@
 package ru.chsergeig.autoreply.client.configuration
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.security.SecurityProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -14,7 +15,8 @@ import ru.chsergeig.autoreply.client.properties.UserProperties
 @Configuration
 @EnableWebSecurity
 class SecurityConfiguration @Autowired constructor(
-    private val userProperties: UserProperties
+//    private val userProperties: UserProperties,
+    private val securityProperties: SecurityProperties,
 ) {
 
     @Bean
@@ -50,8 +52,8 @@ class SecurityConfiguration @Autowired constructor(
         passwordEncoder: PasswordEncoder
     ) {
         auth.inMemoryAuthentication()
-            .withUser(userProperties.security.username)
-            .password(passwordEncoder.encode(userProperties.security.password))
+            .withUser(securityProperties.user.name)
+            .password(passwordEncoder.encode(securityProperties.user.password))
             .roles("ADMIN")
     }
 

@@ -1,25 +1,35 @@
 spring:
-#  autoconfigure:
-#    exclude:
-#      - dev.voroby.springframework.telegram.TelegramClientAutoConfiguration
+  datasource:
+    driver-class-name: org.h2.Driver
+    password: password
+    username: sa
+    url: jdbc:h2:file:${DB_LOCATION:./session.sqlite}/store.h2
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  profiles:
+    active: ${ACTIVE_PROFILE:dev}
+  security:
+    user:
+      name: ${USER_LOGIN:Q}
+      password: ${USER_PASSWORD:Q}
+  sql:
+    init:
+      mode: always
   telegram:
     client:
-      api-id: ${API_ID}
-      api-hash: ${API_HASH}
-      phone: ${USER_PHONE}
-      system-language-code: ${SYSTEM_LANG_CODE:ru}
-      device-model: ${DEVICE_MODEL:my_telegram}
-      use-message-database: true
-      use-file-database: true
-      use-chat-info-database: true
-      use-secret-chats: true
-      log-verbosity-level: 1
-      database-directory: ${DB_LOCATION}
+      api-hash: ${API_HASH:abc}
+      api-id: ${API_ID:123}
+      database-directory: ${DB_LOCATION:./session.sqlite}
       database-encryption-key: ${DB_KEY}
+      device-model: ${DEVICE_MODEL:my_telegram}
+      log-verbosity-level: 1
+      phone: ${USER_PHONE:123}
+      system-language-code: ${SYSTEM_LANG_CODE:ru}
+      use-chat-info-database: true
+      use-file-database: true
+      use-message-database: true
+      use-secret-chats: true
   user:
     default:
       enabled: ${REPLY_DEFAULT_ENABLED:false}
       message: ${REPLY_DEFAULT_MESSAGE:my default message}
-    security:
-      password: ${USER_PASSWORD:Q}
-      username: ${USER_LOGIN:Q}

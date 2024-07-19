@@ -13,7 +13,13 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import ru.chsergeig.autoreply.client.component.TgClientComponent
 import ru.chsergeig.autoreply.client.dto.CurrentSessionStatistics
-import ru.chsergeig.autoreply.client.enum.AutoreplyStatus
+import ru.chsergeig.autoreply.client.enumeration.AutoreplyStatus
+import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.appMessage
+import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.appState
+import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.commonMessagesRead
+import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.privateMessagesRead
+import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.privateMessagesResponses
+import ru.chsergeig.autoreply.client.service.AppStateService
 import ru.chsergeig.autoreply.client.service.TgMessagingService
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -21,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class TgMessagingServiceImpl(
+    private val appStateService: AppStateService,
     @Lazy private val clientComponent: TgClientComponent,
 ) : TgMessagingService {
 
@@ -28,10 +35,45 @@ class TgMessagingServiceImpl(
 
     private val messages: MutableList<Pair<LocalDateTime, Message>> = mutableListOf()
 
-    private val statistics = CurrentSessionStatistics()
+    override var statistics: CurrentSessionStatistics?
+        get() = CurrentSessionStatistics(
+            appStateService.getAppSettingByKey(commonMessagesRead)!!.toInt(),
+            appStateService.getAppSettingByKey(privateMessagesRead)!!.toInt(),
+            appStateService.getAppSettingByKey(privateMessagesResponses)!!.toInt(),
+        )
+        set(value) {
+            if (value?.chatMessagesCount != null) {
+                appStateService.setAppSettingByKey(
+                    commonMessagesRead,
+                    value.chatMessagesCount.toString()
+                )
+            }
+            if (value?.privateMessagesCount != null) {
+                appStateService.setAppSettingByKey(
+                    privateMessagesRead,
+                    value.privateMessagesCount.toString()
+                )
+            }
+            if (value?.privateMessagesResponsesCount != null) {
+                appStateService.setAppSettingByKey(
+                    privateMessagesResponses,
+                    value.privateMessagesResponsesCount.toString()
+                )
+            }
+        }
 
-    override var actualMessage: String? = null
-    override var status: AutoreplyStatus? = null
+    override var actualMessage: String?
+        get() = appStateService.getAppSettingByKey(appMessage)
+        set(value) {
+            appStateService.setAppSettingByKey(appMessage, value!!)
+        }
+
+    override var status: AutoreplyStatus?
+        get() = AutoreplyStatus.valueOf(appStateService.getAppSettingByKey(appState)!!)
+        set(value) {
+            appStateService.setAppSettingByKey(appState, value!!.name)
+        }
+
     override var responseChatList: MutableMap<Long, LocalDateTime> = ConcurrentHashMap()
 
     override fun saveNewMessage(
@@ -56,18 +98,22 @@ class TgMessagingServiceImpl(
                     else -> throw RuntimeException("Cant determine sender ID")
                 }
                 if (userId != null && userId == message.chatId) {
-                    statistics.privateMessagesCount++
+                    appStateService.setAppSettingByKey(
+                        privateMessagesRead,
+                        (appStateService.getAppSettingByKey(privateMessagesRead)!!.toInt() + 1).toString()
+                    )
                     doAutoreply(message)
                 } else {
-                    statistics.chatMessagesCount++
+                    appStateService.setAppSettingByKey(
+                        commonMessagesRead,
+                        (appStateService.getAppSettingByKey(commonMessagesRead)!!.toInt() + 1).toString()
+                    )
                 }
                 processed.add(it)
             }
         }
         messages.removeAll(processed)
     }
-
-    override fun getStatistics(): CurrentSessionStatistics = statistics
 
     fun doAutoreply(message: Message) {
         if (status == AutoreplyStatus.ENABLED) {
@@ -76,6 +122,10 @@ class TgMessagingServiceImpl(
                 log.info(">>> Flood protection")
                 return
             }
+            appStateService.setAppSettingByKey(
+                privateMessagesResponses,
+                (appStateService.getAppSettingByKey(privateMessagesResponses)!!.toInt() + 1).toString()
+            )
             responseChatList[message.chatId] = LocalDateTime.now()
             clientComponent.getTelegramClient().sendAsync(
                 TdApi.SendMessage(

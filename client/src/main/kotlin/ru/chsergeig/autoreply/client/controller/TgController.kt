@@ -26,7 +26,7 @@ class TgController(
                 client.getClientAuthorizationState().isWaitAuthenticationPassword,
                 client.getClientAuthorizationState().isWaitEmailAddress,
                 client.getClientAuthorizationState().haveAuthorization(),
-                messagingService.getStatistics(),
+                messagingService.statistics,
             )
         )
         model.addAttribute(

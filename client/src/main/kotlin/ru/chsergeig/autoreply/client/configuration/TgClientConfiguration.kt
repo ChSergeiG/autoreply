@@ -21,17 +21,4 @@ class TgClientConfiguration {
         override fun getTelegramClient(): TelegramClient = telegramClient
     }
 
-//    @Bean
-    fun mockAuthorizationState(): ClientAuthorizationState {
-        val mock = Mockito.mock(ClientAuthorizationStateImpl::class.java)
-        Mockito.`when`(mock.haveAuthorization()).thenReturn(true)
-        return mock
-    }
-
-//    @Bean
-    fun mockTelegramClient(
-        telegramProperties: TelegramProperties,
-        clientAuthorizationState: ClientAuthorizationState
-    ): TelegramClient = Mockito.mock(TelegramClient::class.java)
-
 }

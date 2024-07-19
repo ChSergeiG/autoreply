@@ -2,9 +2,8 @@ package ru.chsergeig.autoreply.client.service
 
 import dev.voroby.springframework.telegram.client.TdApi.Message
 import ru.chsergeig.autoreply.client.dto.CurrentSessionStatistics
-import ru.chsergeig.autoreply.client.enum.AutoreplyStatus
+import ru.chsergeig.autoreply.client.enumeration.AutoreplyStatus
 import java.time.LocalDateTime
-import java.util.concurrent.ConcurrentHashMap
 
 interface TgMessagingService {
     /**
@@ -18,6 +17,11 @@ interface TgMessagingService {
     var status: AutoreplyStatus?
 
     /**
+     * Message statistics
+     */
+    var statistics: CurrentSessionStatistics?
+
+    /**
      * Chat IDs that was reply`ed with last reply timestamp
      */
     var responseChatList: MutableMap<Long, LocalDateTime>
@@ -26,5 +30,4 @@ interface TgMessagingService {
 
     fun processNewMessages()
 
-    fun getStatistics() : CurrentSessionStatistics
 }

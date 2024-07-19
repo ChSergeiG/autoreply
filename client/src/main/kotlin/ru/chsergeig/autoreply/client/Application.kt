@@ -7,7 +7,8 @@ import org.springframework.boot.runApplication
 @ConfigurationPropertiesScan(
     basePackages = [
         "dev.voroby.springframework.telegram.properties",
-        "ru.chsergeig.autoreply.client.properties"
+        "org.springframework.boot.autoconfigure.security",
+        "ru.chsergeig.autoreply.client.properties",
     ]
 )
 @SpringBootApplication

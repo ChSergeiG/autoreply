@@ -12,6 +12,7 @@ services:
           memory: '32M'
     image: chsergeig/tg-autoreply:latest
     environment:
+      ACTIVE_PROFILE: prod
       API_HASH: '00aaff99'
       API_ID: '000000'
       DB_KEY: 'db-pa$$w0rD'
