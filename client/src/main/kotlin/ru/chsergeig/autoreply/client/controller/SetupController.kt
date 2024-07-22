@@ -71,6 +71,7 @@ class SetupController(
     )
     fun disableAutoreply(): String {
         appStateService.setAppSettingByKey(STATE, AutoreplyStatus.DISABLED.name)
+        appStateService.wipeRepliedChats()
         return "redirect:/setup"
     }
 }

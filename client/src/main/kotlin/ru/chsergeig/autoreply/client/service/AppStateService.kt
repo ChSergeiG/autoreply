@@ -7,4 +7,6 @@ interface AppStateService {
     fun getAppSettingByKey(key: SettingKey): String?
 
     fun setAppSettingByKey(key: SettingKey, value: String?)
+
+    fun wipeRepliedChats()
 }

@@ -50,6 +50,48 @@ subprojects {
     }
 }
 
+tasks {
+    register("increment", DefaultTask::class) {
+        val newVersion = try {
+            val versionChunk = "$version".split(".")
+            val resultChunk = mutableListOf<String>()
+            val length = versionChunk.size
+            var cursor = 0
+            while (cursor < length) {
+                if (cursor == length - 1) {
+                    resultChunk.add("${versionChunk.last().toInt() + 1}")
+                } else {
+                    resultChunk.add(versionChunk[cursor])
+                }
+                cursor++
+            }
+            resultChunk.joinToString(separator = ".")
+        } catch (ignore: Exception) {
+            version
+        }
+        val propertiesLine = file("gradle.properties")
+            .readLines()
+            .joinToString(separator = "\n") {
+                if (it.startsWith("version=")) {
+                    return@joinToString "version=$newVersion"
+                } else {
+                    return@joinToString it
+                }
+            }
+        file("gradle.properties").writeText("$propertiesLine\n")
+        val yamlLines = file(".github/workflows/docker-publish.yml")
+            .readLines()
+            .joinToString(separator = "\n") {
+                if (it.contains("tags:")) {
+                    return@joinToString "          tags: chsergeig/tg-autoreply:$newVersion,chsergeig/tg-autoreply:latest"
+                } else {
+                    return@joinToString it
+                }
+            }
+        file(".github/workflows/docker-publish.yml").writeText("$yamlLines\n")
+    }
+}
+
 fun evalGradleParam(key: String): String {
     return when {
         System.getProperty(key) != null && System.getProperty(key).isNotBlank() -> System.getProperty(key)

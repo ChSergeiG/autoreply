@@ -11,13 +11,14 @@ import ru.chsergeig.autoreply.client.enumeration.SettingKey.PRIVATE_MESSAGES_REA
 import ru.chsergeig.autoreply.client.enumeration.SettingKey.PRIVATE_MESSAGES_RESPONSES
 import ru.chsergeig.autoreply.client.enumeration.SettingKey.STATE
 import ru.chsergeig.autoreply.client.properties.UserProperties
+import ru.chsergeig.autoreply.client.repository.RepliedChatRepository
 import ru.chsergeig.autoreply.client.repository.SettingRepository
 import ru.chsergeig.autoreply.client.service.AppStateService
 
 @Service
 class AppStateServiceImpl(
+    private val repliedChatRepository: RepliedChatRepository,
     private val settingRepository: SettingRepository,
-
     private val userProperties: UserProperties,
 ) : AppStateService {
 
@@ -42,6 +43,10 @@ class AppStateServiceImpl(
             setting.settingValue = value
         }
         settingRepository.save(setting)
+    }
+
+    override fun wipeRepliedChats() {
+        repliedChatRepository.deleteAll()
     }
 
     private fun deduceValue(key: SettingKey): String {
