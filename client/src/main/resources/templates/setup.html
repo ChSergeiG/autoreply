@@ -41,12 +41,12 @@
             th:action="@{/setup/message}"
             method="post"
     >
-        <div class="row">Autoreply message:</div>
         <div class="row">
             <div class="input-group mb-2">
                 <textarea
                         class="text-area form-control"
                         rows="5"
+                        placeholder="Autoreply message:"
                         name="message"
                         th:text="${message}"
                 >
