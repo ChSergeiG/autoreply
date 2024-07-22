@@ -7,7 +7,7 @@ import ru.chsergeig.autoreply.client.service.TgMessagingService
 
 @Component
 class NewMessageHandlerImpl(
-    private val messagingService: TgMessagingService
+    private val messagingService: TgMessagingService,
 ) : UpdateNotificationListener<UpdateNewMessage> {
 
     override fun handleNotification(notification: UpdateNewMessage?) {

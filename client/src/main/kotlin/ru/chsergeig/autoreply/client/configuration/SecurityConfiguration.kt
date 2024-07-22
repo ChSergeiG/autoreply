@@ -10,18 +10,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import ru.chsergeig.autoreply.client.properties.UserProperties
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfiguration @Autowired constructor(
-//    private val userProperties: UserProperties,
     private val securityProperties: SecurityProperties,
 ) {
 
     @Bean
     fun chain(
-        http: HttpSecurity
+        http: HttpSecurity,
     ): SecurityFilterChain {
         http
             .authorizeHttpRequests {
@@ -49,12 +47,11 @@ class SecurityConfiguration @Autowired constructor(
     @Autowired
     fun configureGlobal(
         auth: AuthenticationManagerBuilder,
-        passwordEncoder: PasswordEncoder
+        passwordEncoder: PasswordEncoder,
     ) {
         auth.inMemoryAuthentication()
             .withUser(securityProperties.user.name)
             .password(passwordEncoder.encode(securityProperties.user.password))
             .roles("ADMIN")
     }
-
 }

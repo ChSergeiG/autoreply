@@ -11,5 +11,4 @@ class ViewController {
 
     @RequestMapping(value = ["/", "/index"])
     fun index(): String = "index"
-
 }

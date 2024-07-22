@@ -26,8 +26,6 @@ class DevProfileConfiguration {
     @Bean
     fun mockTelegramClient(
         telegramProperties: TelegramProperties,
-        clientAuthorizationState: ClientAuthorizationState
+        clientAuthorizationState: ClientAuthorizationState,
     ): TelegramClient = Mockito.mock(TelegramClient::class.java)
-
-
 }

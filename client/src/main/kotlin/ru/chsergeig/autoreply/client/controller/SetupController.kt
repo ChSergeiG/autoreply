@@ -7,22 +7,30 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import ru.chsergeig.autoreply.client.enumeration.AutoreplyStatus
-import ru.chsergeig.autoreply.client.service.TgMessagingService
+import ru.chsergeig.autoreply.client.enumeration.SettingKey.MESSAGE
+import ru.chsergeig.autoreply.client.enumeration.SettingKey.STATE
+import ru.chsergeig.autoreply.client.service.AppStateService
 
 @Controller
 class SetupController(
-    private val messagingService: TgMessagingService
+    private val appStateService: AppStateService,
 ) {
 
     @RequestMapping(
         method = [RequestMethod.GET],
-        value = ["setup"]
+        value = ["setup"],
     )
     fun status(
-        model: Model
+        model: Model,
     ): String {
-        model.addAttribute("status", messagingService.status?.name)
-        model.addAttribute("message", messagingService.actualMessage)
+        model.addAttribute(
+            "status",
+            appStateService.getAppSettingByKey(STATE),
+        )
+        model.addAttribute(
+            "message",
+            appStateService.getAppSettingByKey(MESSAGE),
+        )
         return "setup"
     }
 
@@ -35,14 +43,15 @@ class SetupController(
         @RequestParam body: Map<String, String>,
     ): String {
         if (body["status"] != null) {
-            messagingService.status = try {
+            val status = try {
                 AutoreplyStatus.valueOf(body["status"] ?: "")
             } catch (ignore: Exception) {
                 AutoreplyStatus.DISABLED
             }
+            appStateService.setAppSettingByKey(STATE, status.name)
         }
         if (body["message"] != null) {
-            messagingService.actualMessage = body["message"]
+            appStateService.setAppSettingByKey(MESSAGE, body["message"])
         }
         return "redirect:/setup"
     }
@@ -52,7 +61,7 @@ class SetupController(
         value = ["setup/enable"],
     )
     fun enableAutoreply(): String {
-        messagingService.status = AutoreplyStatus.ENABLED
+        appStateService.setAppSettingByKey(STATE, AutoreplyStatus.ENABLED.name)
         return "redirect:/setup"
     }
 
@@ -61,8 +70,7 @@ class SetupController(
         value = ["setup/disable"],
     )
     fun disableAutoreply(): String {
-        messagingService.status = AutoreplyStatus.DISABLED
+        appStateService.setAppSettingByKey(STATE, AutoreplyStatus.DISABLED.name)
         return "redirect:/setup"
     }
-
 }

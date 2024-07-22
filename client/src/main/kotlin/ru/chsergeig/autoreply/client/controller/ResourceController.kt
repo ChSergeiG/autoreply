@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody
 import java.io.IOException
 import java.nio.charset.Charset
 
-
 @Controller
 class ResourceController {
 
@@ -19,7 +18,7 @@ class ResourceController {
     @ResponseBody
     @Throws(IOException::class)
     fun styles(
-        @PathVariable("code") code: String
+        @PathVariable("code") code: String,
     ): ResponseEntity<String> {
         val cssStream = ResourceController::class.java.classLoader
             .getResourceAsStream("static/styles/$code")
@@ -28,5 +27,4 @@ class ResourceController {
         httpHeaders.add("Content-Type", "text/css; charset=utf-8")
         return ResponseEntity<String>(css, httpHeaders, HttpStatus.OK)
     }
-
 }

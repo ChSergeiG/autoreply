@@ -7,6 +7,7 @@ import dev.voroby.springframework.telegram.client.TdApi.InputMessageText
 import dev.voroby.springframework.telegram.client.TdApi.Message
 import dev.voroby.springframework.telegram.client.TdApi.MessageSenderChat
 import dev.voroby.springframework.telegram.client.TdApi.MessageSenderUser
+import jakarta.transaction.Transactional
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
@@ -14,139 +15,117 @@ import org.springframework.stereotype.Service
 import ru.chsergeig.autoreply.client.component.TgClientComponent
 import ru.chsergeig.autoreply.client.dto.CurrentSessionStatistics
 import ru.chsergeig.autoreply.client.enumeration.AutoreplyStatus
-import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.appMessage
-import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.appState
-import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.commonMessagesRead
-import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.privateMessagesRead
-import ru.chsergeig.autoreply.client.repository.SettingRepository.SettingKey.Companion.privateMessagesResponses
+import ru.chsergeig.autoreply.client.enumeration.SettingKey
+import ru.chsergeig.autoreply.client.enumeration.SettingKey.COMMON_MESSAGES_READ
+import ru.chsergeig.autoreply.client.enumeration.SettingKey.MESSAGE
+import ru.chsergeig.autoreply.client.enumeration.SettingKey.PRIVATE_MESSAGES_READ
+import ru.chsergeig.autoreply.client.enumeration.SettingKey.PRIVATE_MESSAGES_RESPONSES
+import ru.chsergeig.autoreply.client.enumeration.SettingKey.STATE
+import ru.chsergeig.autoreply.client.repository.MessageRepository
+import ru.chsergeig.autoreply.client.repository.RepliedChatRepository
 import ru.chsergeig.autoreply.client.service.AppStateService
 import ru.chsergeig.autoreply.client.service.TgMessagingService
 import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.util.concurrent.ConcurrentHashMap
+import ru.chsergeig.autoreply.client.entity.Message as MessagePojo
 
 @Service
 class TgMessagingServiceImpl(
     private val appStateService: AppStateService,
     @Lazy private val clientComponent: TgClientComponent,
+    private val messageRepository: MessageRepository,
+    private val repliedChatRepository: RepliedChatRepository,
 ) : TgMessagingService {
 
     private val log: Logger = LoggerFactory.getLogger(TgMessagingServiceImpl::class.java)
 
-    private val messages: MutableList<Pair<LocalDateTime, Message>> = mutableListOf()
-
-    override var statistics: CurrentSessionStatistics?
-        get() = CurrentSessionStatistics(
-            appStateService.getAppSettingByKey(commonMessagesRead)!!.toInt(),
-            appStateService.getAppSettingByKey(privateMessagesRead)!!.toInt(),
-            appStateService.getAppSettingByKey(privateMessagesResponses)!!.toInt(),
-        )
-        set(value) {
-            if (value?.chatMessagesCount != null) {
-                appStateService.setAppSettingByKey(
-                    commonMessagesRead,
-                    value.chatMessagesCount.toString()
-                )
-            }
-            if (value?.privateMessagesCount != null) {
-                appStateService.setAppSettingByKey(
-                    privateMessagesRead,
-                    value.privateMessagesCount.toString()
-                )
-            }
-            if (value?.privateMessagesResponsesCount != null) {
-                appStateService.setAppSettingByKey(
-                    privateMessagesResponses,
-                    value.privateMessagesResponsesCount.toString()
-                )
-            }
-        }
-
-    override var actualMessage: String?
-        get() = appStateService.getAppSettingByKey(appMessage)
-        set(value) {
-            appStateService.setAppSettingByKey(appMessage, value!!)
-        }
-
-    override var status: AutoreplyStatus?
-        get() = AutoreplyStatus.valueOf(appStateService.getAppSettingByKey(appState)!!)
-        set(value) {
-            appStateService.setAppSettingByKey(appState, value!!.name)
-        }
-
-    override var responseChatList: MutableMap<Long, LocalDateTime> = ConcurrentHashMap()
-
     override fun saveNewMessage(
-        message: Message
+        message: Message,
     ) {
-        messages.add(
-            Pair(
-                LocalDateTime.now(),
-                message,
-            )
+        val messagePojo = MessagePojo(
+            null,
+            message.id,
+            message.chatId,
+            when (val senderId = message.senderId) {
+                is MessageSenderUser -> senderId.userId
+                is MessageSenderChat -> 0L
+                else -> throw RuntimeException("Cant determine sender ID")
+            },
+            message.content.toString(),
+            LocalDateTime.now(),
         )
+        messageRepository.save(messagePojo)
+        if (messagePojo.senderId == messagePojo.chatId) {
+            // it means that it is private message
+            increment(PRIVATE_MESSAGES_READ)
+        } else {
+            // not a private message
+            increment(COMMON_MESSAGES_READ)
+        }
     }
 
     override fun processNewMessages() {
-        val processed = mutableListOf<Pair<LocalDateTime, Message>>()
-        messages.forEach {
-            if (it.first.toEpochSecond(ZoneOffset.UTC) + 5 < LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)) {
-                val message = it.second
-                val userId = when (val senderId = message.senderId) {
-                    is MessageSenderUser -> senderId.userId
-                    is MessageSenderChat -> null
-                    else -> throw RuntimeException("Cant determine sender ID")
+        messageRepository.findAll().forEach {
+            if (it.messageTime.isBefore(LocalDateTime.now().minusSeconds(5))) {
+                try {
+                    if (it.senderId == it.chatId) {
+                        increment(PRIVATE_MESSAGES_RESPONSES)
+                        doAutoreply(it)
+                    }
+                } finally {
+                    messageRepository.delete(it)
                 }
-                if (userId != null && userId == message.chatId) {
-                    appStateService.setAppSettingByKey(
-                        privateMessagesRead,
-                        (appStateService.getAppSettingByKey(privateMessagesRead)!!.toInt() + 1).toString()
-                    )
-                    doAutoreply(message)
-                } else {
-                    appStateService.setAppSettingByKey(
-                        commonMessagesRead,
-                        (appStateService.getAppSettingByKey(commonMessagesRead)!!.toInt() + 1).toString()
-                    )
-                }
-                processed.add(it)
             }
         }
-        messages.removeAll(processed)
     }
 
-    fun doAutoreply(message: Message) {
-        if (status == AutoreplyStatus.ENABLED) {
-            log.info("Processed message: {}", message.toString())
-            if (responseChatList.containsKey(message.chatId)) {
+    override fun updateReplyMessage(
+        newMessage: String,
+    ) = appStateService.setAppSettingByKey(MESSAGE, newMessage)
+
+    override fun updateReplierStatus(
+        newStatus: AutoreplyStatus,
+    ) = appStateService.setAppSettingByKey(STATE, newStatus.name)
+
+    override fun getStatistics(): CurrentSessionStatistics = CurrentSessionStatistics(
+        appStateService.getAppSettingByKey(COMMON_MESSAGES_READ)!!.toInt(),
+        appStateService.getAppSettingByKey(PRIVATE_MESSAGES_READ)!!.toInt(),
+        appStateService.getAppSettingByKey(PRIVATE_MESSAGES_RESPONSES)!!.toInt(),
+    )
+
+    fun doAutoreply(message: MessagePojo) {
+        if (appStateService.getAppSettingByKey(STATE) == AutoreplyStatus.ENABLED.name) {
+            if (repliedChatRepository.existsRepliedChatByChatId(message.chatId)) {
                 log.info(">>> Flood protection")
                 return
             }
-            appStateService.setAppSettingByKey(
-                privateMessagesResponses,
-                (appStateService.getAppSettingByKey(privateMessagesResponses)!!.toInt() + 1).toString()
-            )
-            responseChatList[message.chatId] = LocalDateTime.now()
             clientComponent.getTelegramClient().sendAsync(
                 TdApi.SendMessage(
                     message.chatId,
                     0,
                     InputMessageReplyToMessage(
-                        message.id,
-                        null
+                        message.messageId,
+                        null,
                     ),
                     null,
                     null,
                     InputMessageText(
                         FormattedText(
-                            actualMessage,
-                            emptyArray()
+                            appStateService.getAppSettingByKey(MESSAGE),
+                            emptyArray(),
                         ),
                         null,
-                        false
-                    )
-                )
+                        false,
+                    ),
+                ),
             )
         }
+    }
+
+    @Transactional
+    fun increment(key: SettingKey) {
+        appStateService.setAppSettingByKey(
+            key,
+            (appStateService.getAppSettingByKey(key)!!.toInt() + 1).toString(),
+        )
     }
 }
