@@ -24,7 +24,7 @@ class SecurityConfiguration @Autowired constructor(
         http
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/styles/**")
+                    .requestMatchers("/styles/**", "favicon.ico")
                     .permitAll()
                     .anyRequest()
                     .authenticated()

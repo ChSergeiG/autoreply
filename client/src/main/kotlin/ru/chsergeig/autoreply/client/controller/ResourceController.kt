@@ -27,4 +27,19 @@ class ResourceController {
         httpHeaders.add("Content-Type", "text/css; charset=utf-8")
         return ResponseEntity<String>(css, httpHeaders, HttpStatus.OK)
     }
+
+    @GetMapping("favicon.ico")
+    @ResponseBody
+    @Throws(IOException::class)
+    fun favicon(): ResponseEntity<ByteArray> {
+        val ico = ResourceController::class.java.classLoader
+            .getResourceAsStream("static/favicon.ico")
+        val httpHeaders = HttpHeaders()
+        httpHeaders.add("Content-Type", "image/x-icon")
+        return ResponseEntity<ByteArray>(
+            StreamUtils.copyToByteArray(ico),
+            httpHeaders,
+            HttpStatus.OK,
+        )
+    }
 }

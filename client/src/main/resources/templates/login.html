@@ -9,28 +9,28 @@
         <div class="col-md-12">
             <h3 class="text-center pt-5">Login Page</h3>
             <form th:action="@{/login}" method="post">
-                <div class="form-group">
-                    <label class="form-label" for="formUsername"> Username</label>
+                <div class="form-group input-group m-4">
+                    <span class="input-group-text col-3">Username:</span>
                     <input
                             type="text"
                             id="formUsername"
                             name="username"
-                            class="form-control"
+                            class="form-control col-9"
                     />
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="formPassword">Password:</label>
+                <div class="form-group input-group m-4">
+                    <span class="input-group-text col-3">Password:</span>
                     <input
                             type="password"
                             id="formPassword"
-                            class="form-control"
+                            class="form-control  col-9"
                             name="password"
                     />
                 </div>
-                <div class="form-group">
+                <div class="form-group input-group m-4 d-flex justify-content-center">
                     <input
                             type="submit"
-                            class="btn btn-primary btn-block mb-4"
+                            class="btn btn-primary btn-block col-6"
                             value="Log in"
                     />
                 </div>
