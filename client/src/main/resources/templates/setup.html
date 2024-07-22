@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head th:include="~{fragments/head.html :: header}">
+<head th:insert="~{fragments/head.html :: header}">
 </head>
 <body>
 
@@ -44,12 +44,13 @@
         <div class="row">Autoreply message:</div>
         <div class="row">
             <div class="input-group mb-2">
-                <input
-                        type="text"
-                        class="form-control"
+                <textarea
+                        class="text-area form-control"
+                        rows="5"
                         name="message"
-                        th:value="${message}"
-                />
+                        th:text="${message}"
+                >
+                </textarea>
                 <input
                         type="submit"
                         class="btn btn-outline-secondary"
