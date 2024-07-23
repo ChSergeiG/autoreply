@@ -51,7 +51,7 @@ class SetupController(
             appStateService.setAppSettingByKey(STATE, status.name)
         }
         if (body["message"] != null) {
-            appStateService.setAppSettingByKey(MESSAGE, body["message"])
+            appStateService.setAppSettingByKey(MESSAGE, body["message"]!!)
         }
         return "redirect:/setup"
     }

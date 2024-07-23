@@ -1,4 +1,13 @@
 ---
+logging:
+  level:
+    root: "WARN"
+    ru:
+      chsergeig:
+        autoreply:
+          client:
+            impl:
+              TgMessagingServiceImpl: "DEBUG"
 spring:
   h2:
     console:

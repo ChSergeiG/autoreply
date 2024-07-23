@@ -30,7 +30,7 @@ import ru.chsergeig.autoreply.client.entity.Message as MessagePojo
 
 @Service
 class TgMessagingServiceImpl(
-    private val appStateService: AppStateService,
+    @Lazy private val appStateService: AppStateService,
     @Lazy private val clientComponent: TgClientComponent,
     private val messageRepository: MessageRepository,
     private val repliedChatRepository: RepliedChatRepository,
@@ -53,7 +53,14 @@ class TgMessagingServiceImpl(
             message.content.toString(),
             LocalDateTime.now(),
         )
+
+        if (log.isDebugEnabled) {
+            log.debug("Original message: {}", message)
+            log.debug("Message pojo: {}", messagePojo)
+        }
+
         messageRepository.save(messagePojo)
+
         if (messagePojo.senderId == messagePojo.chatId) {
             // it means that it is private message
             increment(PRIVATE_MESSAGES_READ)
@@ -87,9 +94,9 @@ class TgMessagingServiceImpl(
     ) = appStateService.setAppSettingByKey(STATE, newStatus.name)
 
     override fun getStatistics(): CurrentSessionStatistics = CurrentSessionStatistics(
-        appStateService.getAppSettingByKey(COMMON_MESSAGES_READ)!!.toInt(),
-        appStateService.getAppSettingByKey(PRIVATE_MESSAGES_READ)!!.toInt(),
-        appStateService.getAppSettingByKey(PRIVATE_MESSAGES_RESPONSES)!!.toInt(),
+        appStateService.getAppSettingByKey(COMMON_MESSAGES_READ).toInt(),
+        appStateService.getAppSettingByKey(PRIVATE_MESSAGES_READ).toInt(),
+        appStateService.getAppSettingByKey(PRIVATE_MESSAGES_RESPONSES).toInt(),
     )
 
     fun doAutoreply(message: MessagePojo) {
@@ -125,7 +132,7 @@ class TgMessagingServiceImpl(
     fun increment(key: SettingKey) {
         appStateService.setAppSettingByKey(
             key,
-            (appStateService.getAppSettingByKey(key)!!.toInt() + 1).toString(),
+            (appStateService.getAppSettingByKey(key).toInt() + 1).toString(),
         )
     }
 }

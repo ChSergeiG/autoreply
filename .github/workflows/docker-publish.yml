@@ -39,4 +39,4 @@ jobs:
             GH_TOKEN=${{ secrets.GH_TOKEN }}
           file: ./Dockerfile
           push: true
-          tags: chsergeig/tg-autoreply:1.2.7,chsergeig/tg-autoreply:latest
+          tags: chsergeig/tg-autoreply:1.2.8,chsergeig/tg-autoreply:latest

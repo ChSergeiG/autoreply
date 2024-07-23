@@ -5,4 +5,4 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc
 
 @Configuration
 @EnableWebMvc
-class ThymeleafConfiguration
+class WebMvcConfiguration

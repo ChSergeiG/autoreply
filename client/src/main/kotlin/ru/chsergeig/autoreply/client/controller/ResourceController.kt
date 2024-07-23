@@ -14,17 +14,18 @@ import java.nio.charset.Charset
 @Controller
 class ResourceController {
 
-    @GetMapping("/styles/{code}")
+    @GetMapping("/styles/{file}")
     @ResponseBody
     @Throws(IOException::class)
     fun styles(
-        @PathVariable("code") code: String,
+        @PathVariable("file") file: String,
     ): ResponseEntity<String> {
         val cssStream = ResourceController::class.java.classLoader
-            .getResourceAsStream("static/styles/$code")
+            .getResourceAsStream("static/styles/$file")
         val css = StreamUtils.copyToString(cssStream, Charset.defaultCharset())
         val httpHeaders = HttpHeaders()
         httpHeaders.add("Content-Type", "text/css; charset=utf-8")
+        httpHeaders.add("Cache-Control", "max-age=604800, public")
         return ResponseEntity<String>(css, httpHeaders, HttpStatus.OK)
     }
 
@@ -36,6 +37,7 @@ class ResourceController {
             .getResourceAsStream("static/favicon.ico")
         val httpHeaders = HttpHeaders()
         httpHeaders.add("Content-Type", "image/x-icon")
+        httpHeaders.add("Cache-Control", "max-age=604800, public")
         return ResponseEntity<ByteArray>(
             StreamUtils.copyToByteArray(ico),
             httpHeaders,

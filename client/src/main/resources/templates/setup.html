@@ -17,7 +17,7 @@
         >
             <input
                     type="submit"
-                    class="btn col-12"
+                    class="btn btn-block col-12"
                     th:classappend="${status == 'ENABLED' ? 'enabled btn-warning' : 'disabled btn-outline-warning'}"
                     th:value="Disable"
             />
@@ -29,7 +29,7 @@
         >
             <input
                     type="submit"
-                    class="btn btn-success col-12"
+                    class="btn btn-block col-12"
                     th:classappend="${status == 'DISABLED' ? 'enabled btn-success' : 'disabled btn-outline-success'}"
                     th:value="Enable"
             />
@@ -53,7 +53,7 @@
                 </textarea>
                 <input
                         type="submit"
-                        class="btn btn-outline-secondary"
+                        class="btn btn-outline-primary btn-block"
                         th:value="Send"
                 />
             </div>
