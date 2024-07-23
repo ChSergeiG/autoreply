@@ -55,11 +55,6 @@ class TgMessagingServiceImpl(
             LocalDateTime.now(),
         )
 
-        if (log.isDebugEnabled) {
-            log.debug("Original message: {}", message)
-            log.debug("Message pojo: {}", messagePojo)
-        }
-
         messageRepository.save(messagePojo)
 
         if (messagePojo.senderId == messagePojo.chatId) {
@@ -103,14 +98,17 @@ class TgMessagingServiceImpl(
     fun doAutoreply(message: MessagePojo) {
         if (appStateService.getAppSettingByKey(STATE) == AutoreplyStatus.ENABLED.name) {
             if (repliedChatRepository.existsRepliedChatByChatId(message.chatId)) {
-                log.info(">>> Flood protection")
+                log.warn("Flood protection in chat {}", message.chatId)
                 return
             }
-            repliedChatRepository.save(RepliedChat(
-                null,
-                message.chatId,
-                LocalDateTime.now()
-            ))
+            repliedChatRepository.save(
+                RepliedChat(
+                    null,
+                    message.chatId,
+                    LocalDateTime.now(),
+                ),
+            )
+            log.warn("Reply sent to {}", message.chatId)
             clientComponent.getTelegramClient().sendAsync(
                 TdApi.SendMessage(
                     message.chatId,
