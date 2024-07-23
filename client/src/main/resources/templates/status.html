@@ -1,66 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" th:attr="lang=${lang}">
 <head th:insert="~{fragments/head.html :: header}">
 </head>
 <body>
 
 <div th:replace="~{fragments/navBar.html :: bar}"></div>
 
-<h3 class="text-center pt-5">Replier status</h3>
+<h3 class="text-center pt-5" th:text="#{status.title}"></h3>
 
 <div class="container">
     <div class="row">
-        <div class="col">Status:</div>
+        <div class="col" th:text="#{status.appStatus.title}"></div>
         <div class="col" th:text="${appStatus}"></div>
     </div>
     <div class="row">
-        <div class="col">Message:</div>
+        <div class="col" th:text="#{status.appMessage.title}"></div>
         <div class="col" th:text="${appMessage}"></div>
     </div>
 </div>
 
-<h3 class="text-center pt-5">Client status</h3>
+<h3 class="text-center pt-5" th:text="#{status.clientStatus.title}"></h3>
 
 <div class="container">
     <div class="row">
-        <div class="col">Is client closed:</div>
+        <div class="col" th:text="#{status.clientStatus.isClosed}"></div>
         <div class="col" th:text="${clientStatus.isClosed}"></div>
     </div>
     <div class="row">
-        <div class="col">Is client awaiting for code:</div>
+        <div class="col" th:text="#{status.clientStatus.isWaitCode}"></div>
         <div class="col" th:text="${clientStatus.isWaitCode}"></div>
     </div>
     <div class="row">
-        <div class="col">Is client awaiting for password:</div>
+        <div class="col" th:text="#{status.clientStatus.isWaitPassword}"></div>
         <div class="col" th:text="${clientStatus.isWaitPassword}"></div>
     </div>
     <div class="row">
-        <div class="col">Is client awaiting for e-mail:</div>
+        <div class="col" th:text="#{status.clientStatus.isWaitEmail}"></div>
         <div class="col" th:text="${clientStatus.isWaitEmail}"></div>
     </div>
     <div class="row">
-        <div class="col">Is client authorization completed:</div>
+        <div class="col" th:text="#{status.clientStatus.haveAuthorization}"></div>
         <div class="col" th:text="${clientStatus.haveAuthorization}"></div>
     </div>
     <div class="row">
-        <div class="col">Client build version:</div>
+        <div class="col" th:text="#{status.clientStatus.appVersion}"></div>
         <div class="col" th:text="${appVersion}"></div>
     </div>
 </div>
 
-<div th:if="${clientStatus.isClosed}">Client is closed</div>
+<div th:if="${clientStatus.isClosed}" th:text="#{status.clientStatus.ifIsClosed}"></div>
 
 <h3
         class="text-center pt-5"
         th:if="${clientStatus.isWaitCode || clientStatus.isWaitPassword || clientStatus.isWaitEmail}"
->
-    Actions:
-</h3>
+        th:text="#{status.ifActions.title}"
+></h3>
 
 <div th:if="${!clientStatus.isClosed}">
     <div th:if="${clientStatus.isWaitCode}" class="input-group mb-3">
         <div class="input-group-prepend">
-            <label class="input-group-text" for="authCodeInput">Authentication code:</label>
+            <label class="input-group-text" for="authCodeInput" th:text="#{status.ifActions.authCode}"></label>
         </div>
         <form
                 action="#"
@@ -76,14 +75,14 @@
             <input
                     type="submit"
                     class="btn btn-outline-primary btn-block"
-                    th:value="Send"
+                    th:value="#{status.ifActions.authCode.send}"
             />
         </form>
     </div>
 
     <div th:if="${clientStatus.isWaitPassword}" class="input-group mb-3">
         <div class="input-group-prepend">
-            <label class="input-group-text" for="passInput">Authentication password:</label>
+            <label class="input-group-text" for="passInput" th:text="#{status.ifActions.pass}"></label>
         </div>
         <form
                 action="#"
@@ -99,14 +98,14 @@
             <input
                     type="submit"
                     class="btn btn-outline-primary btn-block"
-                    th:value="Send"
+                    th:value="#{status.ifActions.pass.send}"
             />
         </form>
     </div>
 
     <div th:if="${clientStatus.isWaitEmail}">
         <div class="input-group-prepend">
-            <label class="input-group-text" for="emailInput">User e-mail:</label>
+            <label class="input-group-text" for="emailInput" th:text="#{status.ifActions.eMail}"></label>
         </div>
         <form
                 action="#"
@@ -122,26 +121,26 @@
             <input
                     type="submit"
                     class="btn btn-outline-primary btn-block"
-                    th:value="Send"
+                    th:value="#{status.ifActions.eMail.send}"
             />
         </form>
     </div>
 </div>
 
 <div>
-    <h3 class="text-center pt-5">Current session statistics:</h3>
+    <h3 class="text-center pt-5" th:text="#{status.sessionStatistics.title}"></h3>
 
     <div class="container">
         <div class="row">
-            <div class="col">Chat messages:</div>
+            <div class="col" th:text="#{status.sessionStatistics.chatMessagesCount}"></div>
             <div class="col" th:text="${clientStatus.statistics.chatMessagesCount}"></div>
         </div>
         <div class="row">
-            <div class="col">Private messages:</div>
+            <div class="col" th:text="#{status.sessionStatistics.privateMessagesCount}"></div>
             <div class="col" th:text="${clientStatus.statistics.privateMessagesCount}"></div>
         </div>
         <div class="row">
-            <div class="col">Replied messages:</div>
+            <div class="col" th:text="#{status.sessionStatistics.privateMessagesResponsesCount}"></div>
             <div class="col" th:text="${clientStatus.statistics.privateMessagesResponsesCount}"></div>
         </div>
     </div>

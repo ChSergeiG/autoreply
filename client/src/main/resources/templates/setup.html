@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" th:attr="lang=${lang}">
 <head th:insert="~{fragments/head.html :: header}">
 </head>
 <body>
 
 <div th:replace="~{fragments/navBar.html :: bar}"></div>
 
-<h3 class="text-center pt-5">Setup client</h3>
+<h3 class="text-center pt-5" th:text="#{setup.title}"></h3>
 
 <div class="container">
     <div class="input-group mb-5 d-flex justify-content-around">
@@ -19,7 +19,7 @@
                     type="submit"
                     class="btn btn-block col-12"
                     th:classappend="${status == 'ENABLED' ? 'enabled btn-warning' : 'disabled btn-outline-warning'}"
-                    th:value="Disable"
+                    th:value="#{setup.disable.button}"
             />
         </form>
         <form
@@ -31,7 +31,7 @@
                     type="submit"
                     class="btn btn-block col-12"
                     th:classappend="${status == 'DISABLED' ? 'enabled btn-success' : 'disabled btn-outline-success'}"
-                    th:value="Enable"
+                    th:value="#{setup.enable.button}"
             />
         </form>
     </div>
@@ -54,7 +54,7 @@
                 <input
                         type="submit"
                         class="btn btn-outline-primary btn-block"
-                        th:value="Send"
+                        th:value="#{setup.send.button}"
                 />
             </div>
         </div>

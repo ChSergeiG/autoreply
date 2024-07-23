@@ -14,22 +14,22 @@
         <ul class="navbar-nav mr-auto flex-row">
             <li class="nav-item px-2">
                 <a class="nav-link" th:href="@{/}">
-                    <span class="sr-only">Home</span>
+                    <span class="sr-only" th:text="#{f.nav.home}"></span>
                 </a>
             </li>
             <li class="nav-item px-2">
                 <a class="nav-link" th:href="@{/setup}">
-                    <span class="sr-only">Setup</span>
+                    <span class="sr-only" th:text="#{f.nav.setup}"></span>
                 </a>
             </li>
             <li class="nav-item px-2">
                 <a class="nav-link" th:href="@{/status}">
-                    <span class="sr-only">Status</span>
+                    <span class="sr-only" th:text="#{f.nav.status}"></span>
                 </a>
             </li>
             <li class="nav-item px-2">
                 <a class="nav-link" th:href="@{/logout}">
-                    <span class="sr-only">Logout</span>
+                    <span class="sr-only" th:text="#{f.nav.logout}"></span>
                 </a>
             </li>
         </ul>
