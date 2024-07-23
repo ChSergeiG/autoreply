@@ -4,7 +4,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity
@@ -17,6 +17,6 @@ data class Message(
     var chatId: Long = 0,
     var senderId: Long = 0,
     var messageContent: String = "",
-    var messageTime: LocalDateTime = LocalDateTime.now(),
+    var messageTime: ZonedDateTime = ZonedDateTime.now(),
 
 )

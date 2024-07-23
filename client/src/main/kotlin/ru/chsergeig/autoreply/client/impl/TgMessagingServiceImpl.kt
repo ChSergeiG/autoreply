@@ -26,7 +26,7 @@ import ru.chsergeig.autoreply.client.repository.MessageRepository
 import ru.chsergeig.autoreply.client.repository.RepliedChatRepository
 import ru.chsergeig.autoreply.client.service.AppStateService
 import ru.chsergeig.autoreply.client.service.TgMessagingService
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import ru.chsergeig.autoreply.client.entity.Message as MessagePojo
 
 @Service
@@ -52,7 +52,7 @@ class TgMessagingServiceImpl(
                 else -> throw RuntimeException("Cant determine sender ID")
             },
             message.content.toString(),
-            LocalDateTime.now(),
+            ZonedDateTime.now(),
         )
 
         messageRepository.save(messagePojo)
@@ -68,7 +68,7 @@ class TgMessagingServiceImpl(
 
     override fun processNewMessages() {
         messageRepository.findAll().forEach {
-            if (it.messageTime.isBefore(LocalDateTime.now().minusSeconds(5))) {
+            if (it.messageTime.isBefore(ZonedDateTime.now().minusSeconds(5))) {
                 try {
                     if (it.senderId == it.chatId) {
                         increment(PRIVATE_MESSAGES_RESPONSES)
@@ -95,6 +95,13 @@ class TgMessagingServiceImpl(
         appStateService.getAppSettingByKey(PRIVATE_MESSAGES_RESPONSES).toInt(),
     )
 
+    @Transactional
+    override fun removeOldRepliesFromList() {
+        repliedChatRepository.deleteRepliedChatByRepliedTimeBefore(
+            ZonedDateTime.now().minusMinutes(15),
+        )
+    }
+
     fun doAutoreply(message: MessagePojo) {
         if (appStateService.getAppSettingByKey(STATE) == AutoreplyStatus.ENABLED.name) {
             if (repliedChatRepository.existsRepliedChatByChatId(message.chatId)) {
@@ -105,7 +112,7 @@ class TgMessagingServiceImpl(
                 RepliedChat(
                     null,
                     message.chatId,
-                    LocalDateTime.now(),
+                    ZonedDateTime.now(),
                 ),
             )
             log.warn("Reply sent to {}", message.chatId)

@@ -21,4 +21,6 @@ interface TgMessagingService {
     )
 
     fun getStatistics(): CurrentSessionStatistics
+
+    fun removeOldRepliesFromList()
 }
