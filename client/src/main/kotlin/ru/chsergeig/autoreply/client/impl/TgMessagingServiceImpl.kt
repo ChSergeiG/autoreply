@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import ru.chsergeig.autoreply.client.component.TgClientComponent
 import ru.chsergeig.autoreply.client.dto.CurrentSessionStatistics
+import ru.chsergeig.autoreply.client.entity.RepliedChat
 import ru.chsergeig.autoreply.client.enumeration.AutoreplyStatus
 import ru.chsergeig.autoreply.client.enumeration.SettingKey
 import ru.chsergeig.autoreply.client.enumeration.SettingKey.COMMON_MESSAGES_READ
@@ -105,6 +106,11 @@ class TgMessagingServiceImpl(
                 log.info(">>> Flood protection")
                 return
             }
+            repliedChatRepository.save(RepliedChat(
+                null,
+                message.chatId,
+                LocalDateTime.now()
+            ))
             clientComponent.getTelegramClient().sendAsync(
                 TdApi.SendMessage(
                     message.chatId,
