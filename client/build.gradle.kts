@@ -16,3 +16,26 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 }
+
+tasks {
+    val generateVersion by registering(DefaultTask::class) {
+        file("src/main/kotlin/ru/chsergeig/autoreply/client/AppVersion.kt")
+            .writeText(
+                """
+                package ru.chsergeig.autoreply.client
+
+                class AppVersion {
+                    companion object {
+                        @JvmStatic
+                        val version = "$version"
+                    }
+                }
+                
+                """.trimIndent(),
+            )
+    }
+
+    compileKotlin {
+        dependsOn(generateVersion)
+    }
+}
