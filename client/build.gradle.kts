@@ -6,7 +6,7 @@ plugins {
 dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.h2database:h2")
-    implementation("dev.voroby:spring-boot-starter-telegram:1.12.0")
+    implementation("dev.voroby:spring-boot-starter-telegram:1.13.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.mockito:mockito-core:5.12.0")
     implementation("org.springframework.boot:spring-boot-starter")
@@ -15,27 +15,4 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
-}
-
-tasks {
-    val generateVersion by registering(DefaultTask::class) {
-        file("src/main/kotlin/ru/chsergeig/autoreply/client/AppVersion.kt")
-            .writeText(
-                """
-                package ru.chsergeig.autoreply.client
-
-                class AppVersion {
-                    companion object {
-                        @JvmStatic
-                        val version = "$version"
-                    }
-                }
-                
-                """.trimIndent(),
-            )
-    }
-
-    compileKotlin {
-        dependsOn(generateVersion)
-    }
 }

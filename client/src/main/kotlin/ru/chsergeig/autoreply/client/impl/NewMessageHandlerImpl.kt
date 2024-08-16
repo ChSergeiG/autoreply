@@ -11,8 +11,8 @@ class NewMessageHandlerImpl(
 ) : UpdateNotificationListener<UpdateNewMessage> {
 
     override fun handleNotification(notification: UpdateNewMessage?) {
-        if (notification?.message != null) {
-            messagingService.saveNewMessage(notification.message)
+        notification?.message?.let {
+            messagingService.saveNewMessage(it)
         }
     }
 

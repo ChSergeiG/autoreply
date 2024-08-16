@@ -60,18 +60,22 @@ class SetupController(
         method = [RequestMethod.GET],
         value = ["setup/enable"],
     )
-    fun enableAutoreply(): String {
+    fun enableAutoreply(
+        @RequestParam(value = "goto", required = false) goto: String?
+    ): String {
         appStateService.setAppSettingByKey(STATE, AutoreplyStatus.ENABLED.name)
-        return "redirect:/setup"
+        return "redirect:/${goto ?: "setup"}"
     }
 
     @RequestMapping(
         method = [RequestMethod.GET],
         value = ["setup/disable"],
     )
-    fun disableAutoreply(): String {
+    fun disableAutoreply(
+        @RequestParam(value = "goto", required = false) goto: String?
+    ): String {
         appStateService.setAppSettingByKey(STATE, AutoreplyStatus.DISABLED.name)
         appStateService.wipeRepliedChats()
-        return "redirect:/setup"
+        return "redirect:/${goto ?: "setup"}"
     }
 }

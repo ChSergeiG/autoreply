@@ -71,7 +71,6 @@ class TgMessagingServiceImpl(
             if (it.messageTime.isBefore(ZonedDateTime.now().minusSeconds(5))) {
                 try {
                     if (it.senderId == it.chatId) {
-                        increment(PRIVATE_MESSAGES_RESPONSES)
                         doAutoreply(it)
                     }
                 } finally {
@@ -115,6 +114,7 @@ class TgMessagingServiceImpl(
                     ZonedDateTime.now(),
                 ),
             )
+            increment(PRIVATE_MESSAGES_RESPONSES)
             log.warn("Reply sent to {}", message.chatId)
             clientComponent.getTelegramClient().sendAsync(
                 TdApi.SendMessage(
