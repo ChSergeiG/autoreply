@@ -54,13 +54,16 @@ FROM --platform=linux/amd64 bellsoft/liberica-openjdk-alpine:21
 
 WORKDIR /app
 COPY --from=jar_build /build/client/build/libs/*.jar /app/app.jar
-COPY --from=ssl_build /openssl-1.1.1o/libssl.so.1.1 ./libs/libssl.so.1.1
-COPY --from=ssl_build /openssl-1.1.1o/libcrypto.so.1.1 ./libs/libcrypto.so.1.1
-COPY --from=ld_build /td/example/java/build/libtdjni.so ./libs/libtdjni.so
+
+COPY --from=ssl_build /openssl-1.1.1o/libssl.so.1.1 /app/libs/libssl.so.1.1
+COPY --from=ssl_build /openssl-1.1.1o/libcrypto.so.1.1 /app/libs/libcrypto.so.1.1
+COPY --from=ld_build /td/example/java/build/libtdjni.so /app/libs/libtdjni.so
+COPY --from=ld_build "/usr/lib/libc++.so.1" "/app/libs/libc++.so.1"
+COPY --from=ld_build "/usr/lib/libc++abi.so.1" "/app/libs/libc++abi.so.1"
 
 ENV LD_LIBRARY_PATH=/app/libs/
 
 EXPOSE 5005
 EXPOSE 8080
 
-ENTRYPOINT exec java -Djava.library.path=/app/libs -jar /app/app.jar
+ENTRYPOINT exec java -Dspring.profiles.active=prod -Djava.library.path=/app/libs -jar /app/app.jar

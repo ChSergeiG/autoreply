@@ -3,10 +3,12 @@ plugins {
     id("io.spring.dependency-management") version "1.1.5"
 }
 
+val starterVersion = properties["starterVersion"] as String
+
 dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.h2database:h2")
-    implementation("dev.voroby:spring-boot-starter-telegram:1.13.0")
+    implementation("dev.voroby:spring-boot-starter-telegram:$starterVersion")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.mockito:mockito-core:5.12.0")
     implementation("org.springframework.boot:spring-boot-starter")
