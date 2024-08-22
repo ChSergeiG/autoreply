@@ -30,6 +30,9 @@ RUN git clone https://github.com/tdlib/td.git /td
 RUN git clone --branch "1.13.0" --depth 1 https://github.com/p-vorobyev/spring-boot-starter-telegram.git /sbst
 
 RUN rm -rf /td/build && mkdir /td/build
+WORKDIR /td
+
+RUN git checkout a24af099
 WORKDIR /td/build
 
 RUN CXXFLAGS="-stdlib=libc++" CC=/usr/bin/clang-18 CXX=/usr/bin/clang++-18 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=../example/java/td -DTD_ENABLE_JNI=ON ..
