@@ -1,17 +1,19 @@
 package ru.chsergeig.autoreply.client.controller
 
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
-import ru.chsergeig.autoreply.client.AppVersion
 import ru.chsergeig.autoreply.client.enumeration.SettingKey.MESSAGE
 import ru.chsergeig.autoreply.client.enumeration.SettingKey.STATE
 import ru.chsergeig.autoreply.client.service.AppStateService
 import java.util.concurrent.TimeUnit
 
 @Controller
-class StatusController(
+class StatusController @Autowired constructor(
+    @Value("\${version}") private val appVersion: String,
     private val appStateService: AppStateService,
 ) {
 
@@ -22,7 +24,7 @@ class StatusController(
         model.addAttribute("clientStatus", appStateService.getClientStatus())
         model.addAttribute("appStatus", appStateService.getAppSettingByKey(STATE))
         model.addAttribute("appMessage", appStateService.getAppSettingByKey(MESSAGE))
-        model.addAttribute("appVersion", AppVersion.version)
+        model.addAttribute("appVersion", appVersion)
         return "status"
     }
 

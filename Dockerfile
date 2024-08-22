@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 bellsoft/liberica-openjdk-alpine:21 as jar_build
+FROM --platform=linux/amd64 bellsoft/liberica-openjre-alpine:21 as jar_build
 
 ARG GH_LOGIN
 ENV GH_LOGIN ${GH_LOGIN}
@@ -11,55 +11,52 @@ RUN ./gradlew bootJar
 
 FROM --platform=linux/amd64 alpine as ssl_build
 
-RUN wget https://www.openssl.org/source/openssl-1.1.1o.tar.gz && \
-    tar -zxvf openssl-1.1.1o.tar.gz > /dev/null
+RUN wget https://www.openssl.org/source/openssl-1.1.1o.tar.gz
+RUN tar -zxvf openssl-1.1.1o.tar.gz > /dev/null
 
 RUN apk add perl make gcc libgcc g++ zlib zlib-dev ldc linux-headers
 
 WORKDIR /openssl-1.1.1o
 RUN ./config && make > /dev/null
 
-FROM --platform=linux/amd64 bellsoft/liberica-openjdk-alpine:21 as ld_build
+FROM --platform=linux/amd64 bellsoft/liberica-openjdk-debian:21 as ld_build
 
-ENV CXXFLAGS -stdlib=libc++
-ENV CC /usr/bin/clang-18
-ENV CXX /usr/bin/clang++-18
+COPY ./prepare_ld_build.sh /
+RUN sh /prepare_ld_build.sh
 
-RUN apk add make git zlib-dev gperf php-cli cmake compiler-rt openssl openssl-dev
-RUN apk add clang18 clang18-headers clang18-extra-tools clang18-libclang clang18-libs
-RUN apk add libc++-dev libatomic linux-headers
-
-RUN mkdir -p /usr/lib/llvm18/lib/clang/18/lib/linux/
-RUN cp -r /usr/lib/llvm17/lib/clang/17/lib/linux/libclang_rt.ubsan_standalone-x86_64.a /usr/lib/llvm18/lib/clang/18/lib/linux/libclang_rt.ubsan_standalone-x86_64.a
-RUN cp -r /usr/lib/llvm17/lib/clang/17/lib/linux/libclang_rt.ubsan_standalone_cxx-x86_64.a /usr/lib/llvm18/lib/clang/18/lib/linux/libclang_rt.ubsan_standalone_cxx-x86_64.a
-
-RUN git clone https://github.com/tdlib/td.git && cd td && git checkout 8d08b34e22a08e58db8341839c4e18ee06c516c5
+RUN apt update
+RUN apt install -y make git zlib1g-dev libssl-dev gperf php-cli cmake clang-18 libc++-18-dev libc++abi-18-dev
+RUN git clone https://github.com/tdlib/td.git /td
 RUN git clone --branch "1.13.0" --depth 1 https://github.com/p-vorobyev/spring-boot-starter-telegram.git /sbst
 
 RUN rm -rf /td/build && mkdir /td/build
 WORKDIR /td/build
-RUN cmake -DCMAKE_C_STANDARD_LIBRARIES="-latomic" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY -DCMAKE_INSTALL_PREFIX:PATH=../example/java/td -DTD_ENABLE_JNI=ON ..
+
+RUN CXXFLAGS="-stdlib=libc++" CC=/usr/bin/clang-18 CXX=/usr/bin/clang++-18 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=../example/java/td -DTD_ENABLE_JNI=ON ..
 RUN cmake --build . --target install
 
-WORKDIR /td
-RUN rm example/java/CMakeLists.txt && cp /sbst/libs/build/CMakeLists.txt example/java
-RUN cp -R /sbst/libs/build/dev example/java
-
+RUN rm /td/example/java/CMakeLists.txt && cp /sbst/libs/build/CMakeLists.txt /td/example/java && cp -R /sbst/libs/build/dev /td/example/java
 RUN rm -rf /td/example/java/build && mkdir /td/example/java/build
 WORKDIR /td/example/java/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=../../../tdlib -DTd_DIR:PATH=$(readlink -f ../td/lib/cmake/Td) ..
+
+RUN CXXFLAGS="-stdlib=libc++" CC=/usr/bin/clang-18 CXX=/usr/bin/clang++-18 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=../../../tdlib -DTd_DIR:PATH=$(readlink -e ../td/lib/cmake/Td) ..
 RUN cmake --build . --target install
 
-FROM --platform=linux/amd64 bellsoft/liberica-openjdk-alpine:21
+FROM --platform=linux/amd64 bellsoft/liberica-openjre-debian:21
+
+COPY ./prepare_ld_build.sh /
+RUN sh /prepare_ld_build.sh
+RUN rm /prepare_ld_build.sh
+
+RUN apt update
+RUN apt install -y libc++-18-dev
+RUN apt autoremove
 
 WORKDIR /app
-COPY --from=jar_build /build/client/build/libs/*.jar /app/app.jar
-
-COPY --from=ssl_build /openssl-1.1.1o/libssl.so.1.1 /app/libs/libssl.so.1.1
-COPY --from=ssl_build /openssl-1.1.1o/libcrypto.so.1.1 /app/libs/libcrypto.so.1.1
-COPY --from=ld_build /td/example/java/build/libtdjni.so /app/libs/libtdjni.so
-COPY --from=ld_build "/usr/lib/libc++.so.1" "/app/libs/libc++.so.1"
-COPY --from=ld_build "/usr/lib/libc++abi.so.1" "/app/libs/libc++abi.so.1"
+COPY --from=jar_build "/build/client/build/libs/*.jar" "/app/app.jar"
+COPY --from=ssl_build "/openssl-1.1.1o/libssl.so.1.1" "/app/libs/libssl.so.1.1"
+COPY --from=ssl_build "/openssl-1.1.1o/libcrypto.so.1.1" "/app/libs/libcrypto.so.1.1"
+COPY --from=ld_build "/td/tdlib/bin/libtdjni.so" "/app/libs/libtdjni.so"
 
 ENV LD_LIBRARY_PATH=/app/libs/
 
