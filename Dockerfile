@@ -49,8 +49,10 @@ RUN sh /prepare_ld_build.sh
 RUN rm /prepare_ld_build.sh
 
 RUN apt update
-RUN apt install -y libc++-18-dev
+RUN apt install -y libc++-18-dev musl-dev
 RUN apt autoremove
+
+RUN ln -s "/usr/lib/x86_64-linux-musl/libc.so" "/lib/libc.musl-x86_64.so.1"
 
 WORKDIR /app
 COPY --from=jar_build "/build/client/build/libs/*.jar" "/app/app.jar"
